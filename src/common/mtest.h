@@ -1,12 +1,6 @@
-// XXX: Use openlibm
-#ifdef USE_OPENLIBM
-#   include <openlibm_fenv.h>
-#   include <openlibm_math.h>
-#else
-#   include <fenv.h>
-#   include <math.h>
-#endif // USE_OPENLIBM
+#include <fenv.h>
 #include <float.h>
+#include <math.h>
 
 #undef RN
 #undef RZ
@@ -105,12 +99,6 @@ float ulperr(double got, double want, float dwant);
 float ulperrf(float got, float want, float dwant);
 float ulperrl(long double got, long double want, float dwant);
 
-
-#ifdef SKIP_FP_EXCEPT_TEST
-// XXX: Skip check all fp except
-static int checkexcept(int got, int want, int r) { return 1; }
-static int checkexceptall(int got, int want, int r) { return 1; }
-#else
 static int checkexcept(int got, int want, int r)
 {
 	if (r == RN)
@@ -128,7 +116,6 @@ static int checkexceptall(int got, int want, int r)
 {
 	return got == want;
 }
-#endif // SKIP_FP_EXCEPT_TEST
 
 static int checkulp(float d, int r)
 {
@@ -145,3 +132,4 @@ static int checkcr(long double y, long double ywant, int r)
 		return isnan(y);
 	return y == ywant && signbit(y) == signbit(ywant);
 }
+
