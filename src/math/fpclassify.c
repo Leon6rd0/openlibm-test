@@ -1,10 +1,5 @@
 #include <stdio.h>
-// XXX: Use openlibm
-#ifdef USE_OPENLIBM
-#   include <openlibm_math.h>
-#else
-#   include <math.h>
-#endif // USE_OPENLIBM
+#include <math.h>
 
 #define T(a,b) {__LINE__, a, b},
 #define length(a) (sizeof(a)/sizeof*(a))

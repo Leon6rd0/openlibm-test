@@ -1,3 +1,4 @@
+#include <math.h>
 #include "mtest.h"
 #include "test.h"
 
