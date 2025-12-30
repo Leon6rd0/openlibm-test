@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct l_i t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "sanity/llrint.h"
 #include "special/llrint.h"
 

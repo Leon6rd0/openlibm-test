@@ -6,7 +6,7 @@
 #include "mtest.h"
 
 static struct l_li t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "sanity/lgamma.h"
 #include "special/lgamma.h"
 

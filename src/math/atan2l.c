@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct ll_l t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "ucb/atan2.h"
 #include "sanity/atan2.h"
 #include "special/atan2.h"

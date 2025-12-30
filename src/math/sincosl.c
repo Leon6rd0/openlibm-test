@@ -4,7 +4,7 @@
 #include "mtest.h"
 
 static struct l_ll t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "sanity/sincos.h"
 #include "special/sincos.h"
 #elif LDBL_MANT_DIG == 64

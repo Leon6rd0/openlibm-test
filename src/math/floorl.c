@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct l_l t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "ucb/floor.h"
 #include "sanity/floor.h"
 #include "special/floor.h"

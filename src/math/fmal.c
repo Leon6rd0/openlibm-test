@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct lll_l t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "sanity/fma.h"
 #include "special/fma.h"
 #elif LDBL_MANT_DIG == 64

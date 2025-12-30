@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct ll_l t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "ucb/hypot.h"
 #include "sanity/hypot.h"
 #include "special/hypot.h"

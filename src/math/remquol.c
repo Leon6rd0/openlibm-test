@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct ll_li t[] = {
-#if LDBL_MANT_DIG == 53
+#if LDBL_MANT_DIG == 53 || LDBL_MANT_DIG == 113
 #include "sanity/remquo.h"
 #include "special/remquo.h"
 
