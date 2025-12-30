@@ -147,18 +147,36 @@ $(B)/REPORT:
 	cat $^ >$@
 
 # --- 核心改动 4: 修复编译错误不退出的 Bug (加入 exit 1) ---
+# --- 定义显眼的错误打印命令 ---
+# 1. 输出空行
+# 2. 输出红色分割线和 BUILDERROR 信息
+# 3. 输出错误详情 (cat .err)
+# 4. 输出结束分割线
+# 5. 恢复颜色
+define SHOW_ERROR
+	(echo ""; \
+	 echo -e "\033[31m================================================================================"; \
+	 echo "  >>> BUILDERROR: $@"; \
+	 echo "--------------------------------------------------------------------------------\033[0m"; \
+	 cat $@.err; \
+	 echo -e "\033[31m================================================================================\033[0m"; \
+	 echo "")
+endef
+
+# --- 编译规则 (应用了 SHOW_ERROR) ---
+
 $(B)/%.o:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -c -o $@ $< 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -c -o $@ $< 2>$@.err || $(SHOW_ERROR)
 $(B)/%.s:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -S -o $@ $< || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -S -o $@ $< || $(SHOW_ERROR)
 $(B)/%.lo:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -fPIC -DSHARED -c -o $@ $< 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -fPIC -DSHARED -c -o $@ $< 2>$@.err || $(SHOW_ERROR)
 $(B)/%.so: $(B)/%.lo
-	$(CC) -shared $(LDFLAGS) $($*.so.LDFLAGS) -o $@ $(sort $< $($*.so.LOBJS)) $(LDLIBS) $($*.so.LDLIBS) 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) -shared $(LDFLAGS) $($*.so.LDFLAGS) -o $@ $(sort $< $($*.so.LOBJS)) $(LDLIBS) $($*.so.LDLIBS) 2>$@.err || $(SHOW_ERROR)
 $(B)/%-static.exe: $(B)/%.o
-	$(CC) -static $(LDFLAGS) $($*-static.LDFLAGS) -o $@ $(sort $< $($*-static.OBJS)) $(LDLIBS) $($*-static.LDLIBS) 2>$@.ld.err || (echo BUILDERROR $@; cat $@.ld.err; exit 1)
+	$(CC) -static $(LDFLAGS) $($*-static.LDFLAGS) -o $@ $(sort $< $($*-static.OBJS)) $(LDLIBS) $($*-static.LDLIBS) 2>$@.ld.err || $(SHOW_ERROR)
 $(B)/%.exe: $(B)/%.o
-	$(CC) $(LDFLAGS) $($*.LDFLAGS) -o $@ $(sort $< $($*.OBJS)) $(LDLIBS) $($*.LDLIBS) 2>$@.ld.err || (echo BUILDERROR $@; cat $@.ld.err; exit 1)
+	$(CC) $(LDFLAGS) $($*.LDFLAGS) -o $@ $(sort $< $($*.OBJS)) $(LDLIBS) $($*.LDLIBS) 2>$@.ld.err || $(SHOW_ERROR)
 
 %.o.err: %.o
 	touch $@
