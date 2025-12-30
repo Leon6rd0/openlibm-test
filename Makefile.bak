@@ -11,12 +11,7 @@ AR = $(CROSS_COMPILE)ar
 RANLIB = $(CROSS_COMPILE)ranlib
 RUN_TEST = $(RUN_WRAP) $(B)/common/runtest.exe -w '$(RUN_WRAP)'
 
-# --- 核心改动 1: 定义默认目标只为 Build ---
-.PHONY: all build run check clean cleanall clean-reports
-
-# 默认只构筑，不运行
-all: build
-
+all:
 %.mk:
 # turn off evil implicit rules
 .SUFFIXES:
@@ -58,8 +53,10 @@ D:=$$(patsubst %/,%,$$(dir $(1)))
 N:=$(1)
 $(1).BINS := $$($$(D).BINS_TEMPL:bin%=$(B)/$(1)%)
 -include src/$(1).mk
+#$$(warning D $$(D) N $$(N) B $$($(1).BINS))
 $(B)/$(1).exe $(B)/$(1)-static.exe: $$($(1).OBJS)
 $(B)/$(1).so: $$($(1).LOBJS)
+# make sure dynamic and static binaries are not run parallel (matters for some tests eg ipc)
 $(B)/$(1)-static.err: $(B)/$(1).err
 endef
 $(foreach n,$(NAMES),$(eval $(call template,$(n))))
@@ -85,7 +82,6 @@ $(B)/$(1)/clean:
 	rm -f $$(filter $(B)/$(1)/%,$$(OBJS) $$(LOBJS) $$(BINS) $$(LIBS)) $(B)/$(1)/*.err
 $(B)/$(1)/REPORT: $$($(1).ERRS)
 	cat $(B)/$(1)/*.err >$$@
-# run 目标会强制重跑测试 (依赖 cleanerr)
 run: $(B)/$(1)/run
 $(B)/REPORT: $(B)/$(1)/REPORT
 .PHONY: $(B)/$(1)/all $(B)/$(1)/clean
@@ -120,45 +116,33 @@ $(B)/api/main.exe: $(api.OBJS)
 api/main.OBJS:=$(api.OBJS)
 $(api.OBJS):$(B)/common/options.h
 
-# --- 核心改动 2: 明确定义 Build 目标 ---
-# build 只依赖二进制文件，不依赖 .err 文件
-build: $(BINS) $(LIBS)
+all run: $(B)/REPORT
+	grep FAIL $< || echo PASS
+# Always return 0
 
-# --- 核心改动 3: Check 目标 ---
-# check 依赖 REPORT，如果 REPORT 缺失会自动触发运行
-# 如果 REPORT 存在，直接 grep 结果
-check: $(B)/REPORT
-	@grep FAIL $< || echo PASS
-
-# Error when libm not passed tests (保留旧习惯)
-checklibm: check
+# Error when libm not passed tests
+checklibm: $(B)/REPORT
+	@$(if $(shell grep FAIL $<), echo FAIL && exit 1, echo PASS)
 
 clean:
 	rm -f $(OBJS) $(BINS) $(LIBS) $(B)/common/libtest.a $(B)/common/runtest.exe $(B)/common/options.h $(B)/*/*.err
-
-# 新增：只清理测试报告，保留可执行文件
-clean-reports:
-	rm -f $(B)/REPORT $(B)/*/REPORT $(B)/*/*.err
-
 cleanall: clean
 	rm -f $(B)/REPORT $(B)/*/REPORT
-
 $(B)/REPORT:
 	cat $^ >$@
 
-# --- 核心改动 4: 修复编译错误不退出的 Bug (加入 exit 1) ---
 $(B)/%.o:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -c -o $@ $< 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -c -o $@ $< 2>$@.err || echo BUILDERROR $@; cat $@.err
 $(B)/%.s:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -S -o $@ $< || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -S -o $@ $< || echo BUILDERROR $@; cat $@.err
 $(B)/%.lo:: src/%.c
-	$(CC) $(CFLAGS) $($*.CFLAGS) -fPIC -DSHARED -c -o $@ $< 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) $(CFLAGS) $($*.CFLAGS) -fPIC -DSHARED -c -o $@ $< 2>$@.err || echo BUILDERROR $@; cat $@.err
 $(B)/%.so: $(B)/%.lo
-	$(CC) -shared $(LDFLAGS) $($*.so.LDFLAGS) -o $@ $(sort $< $($*.so.LOBJS)) $(LDLIBS) $($*.so.LDLIBS) 2>$@.err || (echo BUILDERROR $@; cat $@.err; exit 1)
+	$(CC) -shared $(LDFLAGS) $($*.so.LDFLAGS) -o $@ $(sort $< $($*.so.LOBJS)) $(LDLIBS) $($*.so.LDLIBS) 2>$@.err || echo BUILDERROR $@; cat $@.err
 $(B)/%-static.exe: $(B)/%.o
-	$(CC) -static $(LDFLAGS) $($*-static.LDFLAGS) -o $@ $(sort $< $($*-static.OBJS)) $(LDLIBS) $($*-static.LDLIBS) 2>$@.ld.err || (echo BUILDERROR $@; cat $@.ld.err; exit 1)
+	$(CC) -static $(LDFLAGS) $($*-static.LDFLAGS) -o $@ $(sort $< $($*-static.OBJS)) $(LDLIBS) $($*-static.LDLIBS) 2>$@.ld.err || echo BUILDERROR $@; cat $@.ld.err
 $(B)/%.exe: $(B)/%.o
-	$(CC) $(LDFLAGS) $($*.LDFLAGS) -o $@ $(sort $< $($*.OBJS)) $(LDLIBS) $($*.LDLIBS) 2>$@.ld.err || (echo BUILDERROR $@; cat $@.ld.err; exit 1)
+	$(CC) $(LDFLAGS) $($*.LDFLAGS) -o $@ $(sort $< $($*.OBJS)) $(LDLIBS) $($*.LDLIBS) 2>$@.ld.err || echo BUILDERROR $@; cat $@.ld.err
 
 %.o.err: %.o
 	touch $@
@@ -170,3 +154,5 @@ $(B)/%.exe: $(B)/%.o
 	touch $@
 %.err: %.exe
 	$(RUN_TEST) $< >$@ || true
+
+.PHONY: all run clean cleanall
