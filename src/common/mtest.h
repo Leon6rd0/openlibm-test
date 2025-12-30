@@ -7,6 +7,10 @@
 #   include <math.h>
 #endif // USE_OPENLIBM
 #include <float.h>
+#if defined(__riscv) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113
+  #undef LDBL_MANT_DIG
+  #define LDBL_MANT_DIG 113
+#endif
 
 #undef RN
 #undef RZ
