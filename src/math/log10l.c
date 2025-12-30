@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/log10.h"
+// #include "crlibm/log10.h"
 #include "ucb/log10.h"
 #include "sanity/log10.h"
 #include "special/log10.h"

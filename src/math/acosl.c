@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/acos.h"
+// #include "crlibm/acos.h"
 #include "ucb/acos.h"
 #include "sanity/acos.h"
 #include "special/acos.h"

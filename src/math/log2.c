@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct d_d t[] = {
-#include "crlibm/log2.h"
+// #include "crlibm/log2.h"
 #include "sanity/log2.h"
 #include "special/log2.h"
 

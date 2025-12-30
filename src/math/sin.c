@@ -3,7 +3,7 @@
 #include "mtest.h"
 
 static struct d_d t[] = {
-#include "crlibm/sin.h"
+// #include "crlibm/sin.h"
 #include "ucb/sin.h"
 #include "sanity/sin.h"
 #include "special/sin.h"

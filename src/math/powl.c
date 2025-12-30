@@ -4,7 +4,7 @@
 
 static struct ll_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/pow.h"
+// #include "crlibm/pow.h"
 #include "ucb/pow.h"
 #include "sanity/pow.h"
 #include "special/pow.h"

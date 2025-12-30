@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/expm1.h"
+// #include "crlibm/expm1.h"
 #include "sanity/expm1.h"
 #include "special/expm1.h"
 

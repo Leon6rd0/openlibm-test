@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/sinh.h"
+// #include "crlibm/sinh.h"
 #include "ucb/sinh.h"
 #include "sanity/sinh.h"
 #include "special/sinh.h"

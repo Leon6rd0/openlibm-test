@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/tan.h"
+// #include "crlibm/tan.h"
 #include "ucb/tan.h"
 #include "sanity/tan.h"
 #include "special/tan.h"

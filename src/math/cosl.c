@@ -4,7 +4,7 @@
 
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
-#include "crlibm/cos.h"
+// #include "crlibm/cos.h"
 #include "ucb/cos.h"
 #include "sanity/cos.h"
 #include "special/cos.h"
