@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include "mtest.h"
 
+/* 定义一个宏来标记当前架构是否有匹配的测试数据 */
+#if (LDBL_MANT_DIG == 53) || (LDBL_MANT_DIG == 64)
+    #define HAS_MATCHING_DATA 1
+#else
+    #define HAS_MATCHING_DATA 0
+#endif
+
 static struct l_l t[] = {
 #if LDBL_MANT_DIG == 53
 #include "sanity/acosh.h"
@@ -12,10 +19,18 @@ static struct l_l t[] = {
 #include "special/acoshl.h"
 
 #endif
+{ .r = -1 }
 };
 
 int main(void)
 {
+	/* 核心修改 2: 打印当前精度信息 */
+	printf("INFO: System LDBL_MANT_DIG = %d\n", LDBL_MANT_DIG);
+	/* 核心修改 3: 如果没有匹配的数据，打印提示并优雅退出 */
+	if (!HAS_MATCHING_DATA) {
+        	printf("SKIP: No matching test vectors for this precision.\n");
+        	return 0; /* 返回 0 表示“测试通过/跳过”，不会打断 make 流程 */
+    }
 	#pragma STDC FENV_ACCESS ON
 	long double y;
 	float d;
